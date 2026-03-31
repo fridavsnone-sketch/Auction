@@ -44,6 +44,7 @@
 
         /* Колонка 1: Галерея */
         .gallery-col { display: flex; flex-direction: column; gap: 15px; }
+        
         .main-image {
             width: 100%;
             height: 550px;
@@ -53,39 +54,72 @@
             overflow: hidden;
             background: #fdfdfd;
         }
+        
         .main-image img { 
             max-width: 100%; 
             max-height: 100%; 
             object-fit: contain; 
             transition: opacity 0.3s ease;
         }
-        
+
+        /* КОНТЕЙНЕР ДЛЯ МИНИАТЮР */
         .thumbnails { 
             display: flex; 
             gap: 12px; 
             justify-content: center;
         }
         
-        .thumb { 
-            width: 70px; 
-            height: 70px; 
-            border: 1px solid var(--border); 
-            border-radius: 6px; 
-            cursor: pointer; 
-            object-fit: cover;
-            opacity: 0.7;
+        /* ОБЕРТКА ДЛЯ КАЖДОЙ МИНИАТЮРЫ */
+        .thumb-wrapper {
+            position: relative;
+            width: 70px;
+            height: 70px;
+            border: 2px solid transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            overflow: hidden; /* Чтобы заливка не вылезала за закругленные края */
             transition: all 0.2s ease;
+            background: #000;
         }
-        
-        .thumb:hover { 
-            opacity: 1; 
-            border-color: var(--ebay-blue);
-            box-shadow: 0 0 5px rgba(6, 84, 186, 0.3);
+
+        .thumb-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            opacity: 0.6;
+            transition: opacity 0.2s ease;
         }
-        
-        .thumb.active {
+
+        .thumb-wrapper:hover img, .thumb-wrapper.active img {
             opacity: 1;
-            border: 2px solid var(--ebay-blue);
+        }
+
+        .thumb-wrapper.active {
+            border-color: var(--ebay-blue);
+        }
+
+        /* ПРОЗРАЧНАЯ БЕЛАЯ ЗАЛИВКА ДЛЯ МИНИАТЮР */
+        .progress-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%; /* Изначально ширина 0 */
+            background: rgba(255, 255, 255, 0.45); /* Прозрачно-белый */
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Анимация слева направо */
+        @keyframes fillRight {
+            0% { width: 0%; opacity: 1; }
+            95% { opacity: 1; }
+            100% { width: 100%; opacity: 0; }
+        }
+
+        .filling-thumb {
+            animation: fillRight 3s linear forwards;
         }
 
         /* Колонка 2: Информация и ставки */
@@ -165,18 +199,33 @@
 
     <div class="auction-grid">
         
+        <!-- КОЛОНКА 1: ИНТЕРАКТИВНАЯ ГАЛЕРЕЯ -->
         <div class="gallery-col">
             <div class="main-image">
                 <img id="mainImage" src="mushroom.jpeg" alt="Mushroom Humidifier">
             </div>
             <div class="thumbnails">
-                <img class="thumb active" src="mushroom.jpeg" onclick="changeImage('mushroom.jpeg', this)" alt="Thumb 1">
-                <img class="thumb" src="mushroom2.jpg" onclick="changeImage('mushroom2.jpg', this)" alt="Thumb 2">
-                <img class="thumb" src="mushroom3.jpg" onclick="changeImage('mushroom3.jpg', this)" alt="Thumb 3">
-                <img class="thumb" src="mushroom4.jpg" onclick="changeImage('mushroom4.jpg', this)" alt="Thumb 4">
+                <!-- Обертки для миниатюр с прогресс-баром внутри -->
+                <div class="thumb-wrapper active" onclick="manualChange(0)">
+                    <img src="mushroom.jpeg" alt="Thumb 1">
+                    <div class="progress-overlay filling-thumb"></div>
+                </div>
+                <div class="thumb-wrapper" onclick="manualChange(1)">
+                    <img src="mushroom2.jpg" alt="Thumb 2">
+                    <div class="progress-overlay"></div>
+                </div>
+                <div class="thumb-wrapper" onclick="manualChange(2)">
+                    <img src="mushroom3.jpg" alt="Thumb 3">
+                    <div class="progress-overlay"></div>
+                </div>
+                <div class="thumb-wrapper" onclick="manualChange(3)">
+                    <img src="mushroom4.jpg" alt="Thumb 4">
+                    <div class="progress-overlay"></div>
+                </div>
             </div>
         </div>
 
+        <!-- КОЛОНКА 2: ИНФО О ТОВАРЕ И СТАВКИ -->
         <div class="info-col">
             <h1 class="title">Mushroom RainDrop Humidifier & RGB Night Light (ASMR)</h1>
             <div class="condition">Condition: <strong>Brand New</strong></div>
@@ -184,7 +233,6 @@
             <div class="divider"></div>
 
             <div class="bid-section">
-                <!-- ДОБАВЛЕН ID ДЛЯ ТАЙМЕРА (countdown) -->
                 <div class="time-left">Time left: <span id="countdown">02h 43m 10s</span> | Today 11:45 PM</div>
                 
                 <div class="current-bid-row">
@@ -215,6 +263,7 @@
             </div>
         </div>
 
+        <!-- КОЛОНКА 3: ИНФО О ПРОДАВЦЕ -->
         <div class="seller-sidebar">
             <div class="sidebar-box">
                 <div class="box-title">Shop with confidence</div>
@@ -238,6 +287,7 @@
 
     </div>
 
+    <!-- БЛОК ОПИСАНИЯ -->
     <div class="description-container">
         <div class="tabs">
             <div class="tab active">About this item</div>
@@ -267,47 +317,82 @@
 
 </div>
 
-<!-- Скрипты (Галерея + Таймер) -->
+<!-- СКРИПТЫ: Слайдер + Таймер -->
 <script>
-    // Скрипт переключения картинок
-    function changeImage(newSource, clickedThumbnail) {
-        document.getElementById('mainImage').src = newSource;
-        let thumbnails = document.getElementsByClassName('thumb');
-        for (let i = 0; i < thumbnails.length; i++) {
-            thumbnails[i].classList.remove('active');
+    const images = [
+        'mushroom.jpeg',
+        'mushroom2.jpg',
+        'mushroom3.jpg',
+        'mushroom4.jpg'
+    ];
+    let currentIndex = 0;
+    let sliderInterval;
+
+    function updateGallery(index) {
+        currentIndex = index;
+        
+        // 1. Меняем главную картинку
+        document.getElementById('mainImage').src = images[currentIndex];
+        
+        // 2. Сбрасываем стили у всех миниатюр
+        let wrappers = document.getElementsByClassName('thumb-wrapper');
+        let overlays = document.getElementsByClassName('progress-overlay');
+        
+        for (let i = 0; i < wrappers.length; i++) {
+            wrappers[i].classList.remove('active');
+            overlays[i].classList.remove('filling-thumb');
         }
-        clickedThumbnail.classList.add('active');
+
+        // 3. Активируем нужную миниатюру
+        wrappers[currentIndex].classList.add('active');
+
+        // 4. Перезапускаем анимацию заливки (слева направо) на активной миниатюре
+        void overlays[currentIndex].offsetWidth; // Сброс CSS-анимации
+        overlays[currentIndex].classList.add('filling-thumb');
     }
 
-    // Скрипт обратного отсчета
-    // Устанавливаем стартовое время (2 часа, 43 минуты, 10 секунд) в секундах
+    function nextImage() {
+        let nextIndex = (currentIndex + 1) % images.length;
+        updateGallery(nextIndex);
+    }
+
+    function startSlider() {
+        sliderInterval = setInterval(nextImage, 3000); // 3 секунды
+    }
+
+    function manualChange(index) {
+        updateGallery(index);
+        clearInterval(sliderInterval);
+        startSlider(); // Перезапускаем таймер, если кликнули вручную
+    }
+
+    // Запускаем
+    startSlider();
+
+
+    // Таймер обратного отсчета
     let totalSeconds = (2 * 3600) + (43 * 60) + 10;
     const countdownElement = document.getElementById('countdown');
 
     const timer = setInterval(() => {
-        // Если время вышло, останавливаем таймер
         if (totalSeconds <= 0) {
             clearInterval(timer);
             countdownElement.innerHTML = "00h 00m 00s";
             return;
         }
 
-        // Уменьшаем время на 1 секунду
         totalSeconds--;
 
-        // Высчитываем часы, минуты и секунды
         let hours = Math.floor(totalSeconds / 3600);
         let minutes = Math.floor((totalSeconds % 3600) / 60);
         let seconds = totalSeconds % 60;
 
-        // Добавляем ноль спереди, если цифра меньше 10 (например, "09" вместо "9")
         hours = String(hours).padStart(2, '0');
         minutes = String(minutes).padStart(2, '0');
         seconds = String(seconds).padStart(2, '0');
 
-        // Обновляем текст на странице
         countdownElement.innerHTML = `${hours}h ${minutes}m ${seconds}s`;
-    }, 1000); // 1000 миллисекунд = 1 секунда
+    }, 1000);
 </script>
 
 </body>
