@@ -184,7 +184,8 @@
             <div class="divider"></div>
 
             <div class="bid-section">
-                <div class="time-left">Time left: 02h 45m 10s | Today 11:45 PM</div>
+                <!-- ДОБАВЛЕН ID ДЛЯ ТАЙМЕРА (countdown) -->
+                <div class="time-left">Time left: <span id="countdown">02h 43m 10s</span> | Today 11:45 PM</div>
                 
                 <div class="current-bid-row">
                     <span class="current-bid-label">Current bid:</span>
@@ -266,7 +267,9 @@
 
 </div>
 
+<!-- Скрипты (Галерея + Таймер) -->
 <script>
+    // Скрипт переключения картинок
     function changeImage(newSource, clickedThumbnail) {
         document.getElementById('mainImage').src = newSource;
         let thumbnails = document.getElementsByClassName('thumb');
@@ -275,6 +278,36 @@
         }
         clickedThumbnail.classList.add('active');
     }
+
+    // Скрипт обратного отсчета
+    // Устанавливаем стартовое время (2 часа, 43 минуты, 10 секунд) в секундах
+    let totalSeconds = (2 * 3600) + (43 * 60) + 10;
+    const countdownElement = document.getElementById('countdown');
+
+    const timer = setInterval(() => {
+        // Если время вышло, останавливаем таймер
+        if (totalSeconds <= 0) {
+            clearInterval(timer);
+            countdownElement.innerHTML = "00h 00m 00s";
+            return;
+        }
+
+        // Уменьшаем время на 1 секунду
+        totalSeconds--;
+
+        // Высчитываем часы, минуты и секунды
+        let hours = Math.floor(totalSeconds / 3600);
+        let minutes = Math.floor((totalSeconds % 3600) / 60);
+        let seconds = totalSeconds % 60;
+
+        // Добавляем ноль спереди, если цифра меньше 10 (например, "09" вместо "9")
+        hours = String(hours).padStart(2, '0');
+        minutes = String(minutes).padStart(2, '0');
+        seconds = String(seconds).padStart(2, '0');
+
+        // Обновляем текст на странице
+        countdownElement.innerHTML = `${hours}h ${minutes}m ${seconds}s`;
+    }, 1000); // 1000 миллисекунд = 1 секунда
 </script>
 
 </body>
