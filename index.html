@@ -62,14 +62,13 @@
             transition: opacity 0.3s ease;
         }
 
-        /* КОНТЕЙНЕР ДЛЯ МИНИАТЮР */
+        /* МИНИАТЮРЫ */
         .thumbnails { 
             display: flex; 
             gap: 12px; 
             justify-content: center;
         }
         
-        /* ОБЕРТКА ДЛЯ КАЖДОЙ МИНИАТЮРЫ */
         .thumb-wrapper {
             position: relative;
             width: 70px;
@@ -77,7 +76,7 @@
             border: 2px solid transparent;
             border-radius: 6px;
             cursor: pointer;
-            overflow: hidden; /* Чтобы заливка не вылезала за закругленные края */
+            overflow: hidden; 
             transition: all 0.2s ease;
             background: #000;
         }
@@ -99,19 +98,18 @@
             border-color: var(--ebay-blue);
         }
 
-        /* ПРОЗРАЧНАЯ БЕЛАЯ ЗАЛИВКА ДЛЯ МИНИАТЮР */
+        /* ПРОЗРАЧНАЯ БЕЛАЯ ЗАЛИВКА */
         .progress-overlay {
             position: absolute;
             top: 0;
             left: 0;
             height: 100%;
-            width: 0%; /* Изначально ширина 0 */
-            background: rgba(255, 255, 255, 0.45); /* Прозрачно-белый */
+            width: 0%; 
+            background: rgba(255, 255, 255, 0.45); 
             pointer-events: none;
             z-index: 2;
         }
 
-        /* Анимация слева направо */
         @keyframes fillRight {
             0% { width: 0%; opacity: 1; }
             95% { opacity: 1; }
@@ -129,7 +127,6 @@
         .condition strong { color: var(--text-main); }
         .divider { height: 1px; background: #e5e5e5; margin: 5px 0; }
 
-        /* Блок таймера и ставок */
         .bid-section { background: #f8f8f8; padding: 15px; border-radius: 8px; border: 1px solid #e5e5e5; }
         .time-left { font-size: 14px; color: var(--ebay-red); font-weight: bold; margin-bottom: 10px; }
         .current-bid-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 15px; }
@@ -163,7 +160,7 @@
         .seller-links { font-size: 13px; color: var(--ebay-blue); line-height: 1.8; }
         .seller-links div { cursor: pointer; text-decoration: underline; }
 
-        /* Описание товара */
+        /* БЛОК ОПИСАНИЯ И ВКЛАДКИ */
         .description-container {
             background: var(--bg-card);
             margin-top: 20px;
@@ -171,9 +168,13 @@
             border: 1px solid var(--border);
             border-radius: 8px;
         }
-        .tabs { display: flex; gap: 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
-        .tab { padding: 10px 0; font-weight: bold; font-size: 16px; color: var(--text-muted); cursor: pointer; }
+        .tabs { display: flex; gap: 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; flex-wrap: wrap;}
+        .tab { padding: 10px 0; font-weight: bold; font-size: 16px; color: var(--text-muted); cursor: pointer; transition: 0.2s;}
+        .tab:hover { color: var(--ebay-blue); }
         .tab.active { color: var(--text-main); border-bottom: 2px solid var(--text-main); }
+
+        .desc-content { display: none; /* По умолчанию скрываем все вкладки */ }
+        .desc-content.active-pane { display: block; /* Показываем только активную */ }
 
         .desc-content h2 { font-size: 22px; margin-bottom: 15px; color: #111; }
         .desc-content h3 { font-size: 16px; margin: 20px 0 10px 0; color: var(--ebay-blue); }
@@ -188,6 +189,18 @@
             font-size: 15px;
             font-weight: 500;
         }
+
+        /* СТИЛИ ДЛЯ СЛОВАРЯ (VOCABULARY) */
+        .vocab-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed var(--border);
+        }
+        .vocab-item:last-child { border-bottom: none; }
+        .vocab-word { font-size: 16px; color: var(--ebay-blue); font-weight: bold;}
+        .vocab-context { font-size: 13px; color: var(--text-muted); font-style: italic; margin-left: 5px; }
+        .vocab-def { margin-top: 5px; font-size: 15px; line-height: 1.5; padding-left: 15px; border-left: 3px solid #eee;}
+
     </style>
 </head>
 <body>
@@ -205,7 +218,6 @@
                 <img id="mainImage" src="mushroom.jpeg" alt="Mushroom Humidifier">
             </div>
             <div class="thumbnails">
-                <!-- Обертки для миниатюр с прогресс-баром внутри -->
                 <div class="thumb-wrapper active" onclick="manualChange(0)">
                     <img src="mushroom.jpeg" alt="Thumb 1">
                     <div class="progress-overlay filling-thumb"></div>
@@ -287,15 +299,18 @@
 
     </div>
 
-    <!-- БЛОК ОПИСАНИЯ -->
+    <!-- БЛОК ОПИСАНИЯ СО ВКЛАДКАМИ -->
     <div class="description-container">
+        <!-- Кнопки вкладок -->
         <div class="tabs">
-            <div class="tab active">About this item</div>
-            <div class="tab">Shipping and returns</div>
-            <div class="tab">Payment details</div>
+            <div class="tab active" onclick="openTab('tab-about', this)">About this item</div>
+            <div class="tab" onclick="openTab('tab-shipping', this)">Shipping and returns</div>
+            <div class="tab" onclick="openTab('tab-payment', this)">Payment details</div>
+            <div class="tab" onclick="openTab('tab-vocab', this)">Vocabulary</div>
         </div>
 
-        <div class="desc-content">
+        <!-- Вкладка 1: Описание (AIDA) -->
+        <div id="tab-about" class="desc-content active-pane">
             <h2>Tired of stress and dry air in your room?</h2>
             <p>Turn your bedroom into a personal relaxation spa! Meet the viral ZenCloud Raindrop Humidifier. It's not just a lamp; it's a mini-weather station that creates real water drops.</p>
 
@@ -313,12 +328,102 @@
                 Don't miss out! This is a limited edition model! Click "PLACE BID" now to join the auction, or hit "BUY IT NOW" for just $40 to get it immediately with free shipping. Upgrade your vibe today!
             </div>
         </div>
-    </div>
 
+        <!-- Вкладка 2: Доставка (Заглушка) -->
+        <div id="tab-shipping" class="desc-content">
+            <h2>Shipping & Returns Information</h2>
+            <p>We ship worldwide within 24 hours of payment. Standard delivery takes 5-7 business days.</p>
+            <p>Returns are accepted within 30 days if the item is in its original, unopened packaging. Buyer pays return shipping.</p>
+        </div>
+
+        <!-- Вкладка 3: Оплата (Заглушка) -->
+        <div id="tab-payment" class="desc-content">
+            <h2>Payment Details</h2>
+            <p>We accept all major credit cards, PayPal, and Apple Pay. Ensure your payment is completed within 48 hours of winning the auction to secure your item.</p>
+        </div>
+
+        <!-- Вкладка 4: СЛОВАРЬ (НОВАЯ) -->
+        <div id="tab-vocab" class="desc-content">
+            <h2>Vocabulary List</h2>
+            <p style="margin-bottom: 20px; color: var(--text-muted);">Learn the keywords used in this product description:</p>
+            
+            <div class="vocab-item">
+                <span class="vocab-word">1. Ultrasonic</span> <span class="vocab-context">(from the site: "ultrasonic technology")</span>
+                <div class="vocab-def"><strong>Definition:</strong> Involving sound waves with a frequency above the limit of human hearing.</div>
+            </div>
+
+            <div class="vocab-item">
+                <span class="vocab-word">2. Simulate</span> <span class="vocab-context">(from the site: "simulates the soothing sound")</span>
+                <div class="vocab-def"><strong>Definition:</strong> To create conditions or effects similar to something that exists naturally.</div>
+            </div>
+
+            <div class="vocab-item">
+                <span class="vocab-word">3. Soothing</span> <span class="vocab-context">(from the site/speech: "soothing rain sound")</span>
+                <div class="vocab-def"><strong>Definition:</strong> Having a gently calming effect; making you feel relaxed.</div>
+            </div>
+
+            <div class="vocab-item">
+                <span class="vocab-word">4. Diffuser</span> <span class="vocab-context">(from the site/speech: "Essential Oil Diffuser")</span>
+                <div class="vocab-def"><strong>Definition:</strong> A device that spreads a pleasant smell (like essential oils) into the air.</div>
+            </div>
+
+            <div class="vocab-item">
+                <span class="vocab-word">5. Relieve</span> <span class="vocab-context">(from the site: "instantly relieve your anxiety")</span>
+                <div class="vocab-def"><strong>Definition:</strong> To make an unpleasant feeling, such as pain or worry, less severe.</div>
+            </div>
+
+            <div class="vocab-item">
+                <span class="vocab-word">6. Anxiety</span> <span class="vocab-context">(from the site/speech: "kills anxiety")</span>
+                <div class="vocab-def"><strong>Definition:</strong> An uncomfortable feeling of nervousness or worry about something.</div>
+            </div>
+
+            <div class="vocab-item">
+                <span class="vocab-word">7. Aesthetic</span> <span class="vocab-context">(from the site/speech: "aesthetic upgrade")</span>
+                <div class="vocab-def"><strong>Definition:</strong> Visually pleasing; concerned with beauty or the appreciation of beauty.</div>
+            </div>
+
+            <div class="vocab-item">
+                <span class="vocab-word">8. Masterpiece</span> <span class="vocab-context">(from the speech: "3-in-1 masterpiece")</span>
+                <div class="vocab-def"><strong>Definition:</strong> A work of outstanding artistry, skill, or design.</div>
+            </div>
+
+            <div class="vocab-item">
+                <span class="vocab-word">9. Auction</span> <span class="vocab-context">(from the site/speech: "join the auction")</span>
+                <div class="vocab-def"><strong>Definition:</strong> A public sale where goods are sold to the person who offers the highest price.</div>
+            </div>
+
+            <div class="vocab-item">
+                <span class="vocab-word">10. Bid</span> <span class="vocab-context">(from the site/speech: "starting bid", "PLACE BID")</span>
+                <div class="vocab-def"><strong>Definition:</strong> An offer of a particular amount of money for something that is for sale.</div>
+            </div>
+        </div>
+
+    </div>
 </div>
 
-<!-- СКРИПТЫ: Слайдер + Таймер -->
+<!-- СКРИПТЫ -->
 <script>
+    // --- ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ОПИСАНИЯ ---
+    function openTab(tabId, clickedElement) {
+        // 1. Скрываем весь контент
+        let panes = document.getElementsByClassName('desc-content');
+        for (let i = 0; i < panes.length; i++) {
+            panes[i].classList.remove('active-pane');
+        }
+        
+        // 2. Снимаем выделение со всех кнопок-вкладок
+        let tabs = document.getElementsByClassName('tab');
+        for (let i = 0; i < tabs.length; i++) {
+            tabs[i].classList.remove('active');
+        }
+
+        // 3. Показываем нужный контент и выделяем кликнутую кнопку
+        document.getElementById(tabId).classList.add('active-pane');
+        clickedElement.classList.add('active');
+    }
+
+
+    // --- СЛАЙДЕР И ЗАЛИВКА ---
     const images = [
         'mushroom.jpeg',
         'mushroom2.jpg',
@@ -331,10 +436,8 @@
     function updateGallery(index) {
         currentIndex = index;
         
-        // 1. Меняем главную картинку
         document.getElementById('mainImage').src = images[currentIndex];
         
-        // 2. Сбрасываем стили у всех миниатюр
         let wrappers = document.getElementsByClassName('thumb-wrapper');
         let overlays = document.getElementsByClassName('progress-overlay');
         
@@ -343,11 +446,8 @@
             overlays[i].classList.remove('filling-thumb');
         }
 
-        // 3. Активируем нужную миниатюру
         wrappers[currentIndex].classList.add('active');
-
-        // 4. Перезапускаем анимацию заливки (слева направо) на активной миниатюре
-        void overlays[currentIndex].offsetWidth; // Сброс CSS-анимации
+        void overlays[currentIndex].offsetWidth;
         overlays[currentIndex].classList.add('filling-thumb');
     }
 
@@ -357,20 +457,19 @@
     }
 
     function startSlider() {
-        sliderInterval = setInterval(nextImage, 3000); // 3 секунды
+        sliderInterval = setInterval(nextImage, 3000); 
     }
 
     function manualChange(index) {
         updateGallery(index);
         clearInterval(sliderInterval);
-        startSlider(); // Перезапускаем таймер, если кликнули вручную
+        startSlider(); 
     }
 
-    // Запускаем
     startSlider();
 
 
-    // Таймер обратного отсчета
+    // --- ТАЙМЕР ---
     let totalSeconds = (2 * 3600) + (43 * 60) + 10;
     const countdownElement = document.getElementById('countdown');
 
