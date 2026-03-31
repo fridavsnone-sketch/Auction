@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mushroom RainDrop Humidifier | Online Auction</title>
+    <style>
+        :root {
+            --ebay-blue: #0654ba;
+            --ebay-light-blue: #3665f3;
+            --ebay-red: #e53238;
+            --text-main: #333333;
+            --text-muted: #767676;
+            --bg-body: #f7f7f7;
+            --bg-card: #ffffff;
+            --border: #cccccc;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+
+        body { background-color: var(--bg-body); color: var(--text-main); padding-bottom: 50px; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+        /* Хлебные крошки */
+        .breadcrumbs { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; }
+        .breadcrumbs span { color: var(--ebay-blue); cursor: pointer; text-decoration: underline; }
+
+        /* Сетка аукциона */
+        .auction-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 1.4fr 300px;
+            gap: 20px;
+            background: var(--bg-card);
+            padding: 20px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        @media (max-width: 992px) {
+            .auction-grid { grid-template-columns: 1fr 1fr; }
+            .seller-sidebar { grid-column: span 2; }
+        }
+
+        /* Колонка 1: Галерея */
+        .gallery-col { display: flex; flex-direction: column; gap: 15px; }
+        .main-image {
+            width: 100%;
+            height: 550px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+            background: #fdfdfd;
+        }
+        .main-image img { 
+            max-width: 100%; 
+            max-height: 100%; 
+            object-fit: contain; 
+            transition: opacity 0.3s ease;
+        }
+        
+        .thumbnails { 
+            display: flex; 
+            gap: 12px; 
+            justify-content: center;
+        }
+        
+        .thumb { 
+            width: 70px; 
+            height: 70px; 
+            border: 1px solid var(--border); 
+            border-radius: 6px; 
+            cursor: pointer; 
+            object-fit: cover;
+            opacity: 0.7;
+            transition: all 0.2s ease;
+        }
+        
+        .thumb:hover { 
+            opacity: 1; 
+            border-color: var(--ebay-blue);
+            box-shadow: 0 0 5px rgba(6, 84, 186, 0.3);
+        }
+        
+        .thumb.active {
+            opacity: 1;
+            border: 2px solid var(--ebay-blue);
+        }
+
+        /* Колонка 2: Информация и ставки */
+        .info-col { display: flex; flex-direction: column; gap: 15px; }
+        .title { font-size: 20px; font-weight: bold; color: var(--text-main); line-height: 1.3; }
+        .condition { font-size: 14px; }
+        .condition strong { color: var(--text-main); }
+        .divider { height: 1px; background: #e5e5e5; margin: 5px 0; }
+
+        /* Блок таймера и ставок */
+        .bid-section { background: #f8f8f8; padding: 15px; border-radius: 8px; border: 1px solid #e5e5e5; }
+        .time-left { font-size: 14px; color: var(--ebay-red); font-weight: bold; margin-bottom: 10px; }
+        .current-bid-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 15px; }
+        .current-bid-label { font-size: 14px; color: var(--text-muted); }
+        .current-bid-price { font-size: 28px; font-weight: bold; }
+        .bid-count { font-size: 13px; color: var(--ebay-blue); text-decoration: underline; cursor: pointer; }
+
+        .action-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .bid-input { padding: 10px; border: 1px solid var(--border); border-radius: 20px; width: 120px; font-size: 14px; outline: none; }
+        
+        .btn { padding: 12px 24px; border-radius: 24px; font-weight: bold; font-size: 14px; cursor: pointer; text-align: center; border: none; transition: 0.2s; flex: 1; }
+        .btn-blue { background: var(--ebay-light-blue); color: white; }
+        .btn-blue:hover { background: var(--ebay-blue); }
+        .btn-outline { background: white; color: var(--ebay-blue); border: 1px solid var(--ebay-blue); }
+        .btn-outline:hover { background: #f0f8ff; }
+
+        .buy-it-now { display: flex; align-items: center; justify-content: space-between; margin-top: 15px; font-size: 16px; }
+        .btn-black { background: #333; color: white; border-radius: 24px; padding: 10px 20px; text-decoration: none; font-size: 14px; font-weight: bold; }
+        .btn-black:hover { background: #000; }
+
+        .shipping-info { font-size: 13px; color: var(--text-main); line-height: 1.6; }
+        .shipping-info strong { color: var(--text-main); }
+
+        /* Колонка 3: Сайдбар (Продавец) */
+        .seller-sidebar { display: flex; flex-direction: column; gap: 20px; }
+        .sidebar-box { border: 1px solid var(--border); border-radius: 8px; padding: 15px; }
+        .box-title { font-size: 16px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+        
+        .seller-name { font-size: 14px; font-weight: bold; color: var(--ebay-blue); margin-bottom: 5px; }
+        .seller-rating { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+        .seller-links { font-size: 13px; color: var(--ebay-blue); line-height: 1.8; }
+        .seller-links div { cursor: pointer; text-decoration: underline; }
+
+        /* Описание товара */
+        .description-container {
+            background: var(--bg-card);
+            margin-top: 20px;
+            padding: 30px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .tabs { display: flex; gap: 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+        .tab { padding: 10px 0; font-weight: bold; font-size: 16px; color: var(--text-muted); cursor: pointer; }
+        .tab.active { color: var(--text-main); border-bottom: 2px solid var(--text-main); }
+
+        .desc-content h2 { font-size: 22px; margin-bottom: 15px; color: #111; }
+        .desc-content h3 { font-size: 16px; margin: 20px 0 10px 0; color: var(--ebay-blue); }
+        .desc-content p { font-size: 15px; line-height: 1.6; margin-bottom: 15px; }
+        .desc-content ul { margin-left: 20px; margin-bottom: 15px; font-size: 15px; line-height: 1.6; }
+        .desc-content li { margin-bottom: 8px; }
+        
+        .cta-highlight {
+            background: #fff8e1;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            font-size: 15px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="breadcrumbs">
+        <span>Home</span> > <span>Home & Garden</span> > <span>Home Improvement</span> > <span>Heating, Cooling & Air</span> > <span>Humidifiers</span>
+    </div>
+
+    <div class="auction-grid">
+        
+        <div class="gallery-col">
+            <div class="main-image">
+                <img id="mainImage" src="mushroom.jpeg" alt="Mushroom Humidifier">
+            </div>
+            <div class="thumbnails">
+                <img class="thumb active" src="mushroom.jpeg" onclick="changeImage('mushroom.jpeg', this)" alt="Thumb 1">
+                <img class="thumb" src="mushroom2.jpg" onclick="changeImage('mushroom2.jpg', this)" alt="Thumb 2">
+                <img class="thumb" src="mushroom3.jpg" onclick="changeImage('mushroom3.jpg', this)" alt="Thumb 3">
+                <img class="thumb" src="mushroom4.jpg" onclick="changeImage('mushroom4.jpg', this)" alt="Thumb 4">
+            </div>
+        </div>
+
+        <div class="info-col">
+            <h1 class="title">Mushroom RainDrop Humidifier & RGB Night Light (ASMR)</h1>
+            <div class="condition">Condition: <strong>Brand New</strong></div>
+            
+            <div class="divider"></div>
+
+            <div class="bid-section">
+                <div class="time-left">Time left: 02h 45m 10s | Today 11:45 PM</div>
+                
+                <div class="current-bid-row">
+                    <span class="current-bid-label">Current bid:</span>
+                    <span class="current-bid-price">US $30.00</span>
+                    <span class="bid-count">[ 4 bids ]</span>
+                </div>
+
+                <div class="action-row">
+                    <input type="text" class="bid-input" placeholder="US $32.00 or more">
+                    <button class="btn btn-blue">Place bid</button>
+                </div>
+                
+                <div class="buy-it-now">
+                    <span>Or buy it right now: <strong>US $40.00</strong></span>
+                    <button class="btn-black">Buy It Now</button>
+                </div>
+            </div>
+
+            <div class="action-row">
+                <button class="btn btn-outline">♡ Add to watchlist</button>
+            </div>
+
+            <div class="shipping-info">
+                <p><strong>Shipping:</strong> FREE Standard Shipping | <span style="color:var(--ebay-blue); cursor:pointer;">See details</span></p>
+                <p>Located in: Los Angeles, California, United States</p>
+                <p><strong>Returns:</strong> 30 day returns. Buyer pays for return shipping.</p>
+            </div>
+        </div>
+
+        <div class="seller-sidebar">
+            <div class="sidebar-box">
+                <div class="box-title">Shop with confidence</div>
+                <p style="font-size: 13px; margin-bottom: 10px;"><strong>eBay Money Back Guarantee</strong></p>
+                <p style="font-size: 13px; color: var(--text-muted);">Get the item you ordered or get your money back.</p>
+            </div>
+
+            <div class="sidebar-box">
+                <div class="box-title">Seller information</div>
+                <div class="seller-name">zen_cloud_store (1,245)</div>
+                <div class="seller-rating">99.8% Positive feedback</div>
+                <div class="divider"></div>
+                <div class="seller-links">
+                    <div>Save this Seller</div>
+                    <div>Contact seller</div>
+                    <div>Visit store</div>
+                    <div>See other items</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="description-container">
+        <div class="tabs">
+            <div class="tab active">About this item</div>
+            <div class="tab">Shipping and returns</div>
+            <div class="tab">Payment details</div>
+        </div>
+
+        <div class="desc-content">
+            <h2>Tired of stress and dry air in your room?</h2>
+            <p>Turn your bedroom into a personal relaxation spa! Meet the viral ZenCloud Raindrop Humidifier. It's not just a lamp; it's a mini-weather station that creates real water drops.</p>
+
+            <h3>How does it work?</h3>
+            <p>Our advanced ultrasonic technology doesn't just create mist. It accurately simulates the soothing, realistic sound of falling rain.</p>
+            <ul>
+                <li><strong>3-in-1 Device:</strong> Humidifier, Essential Oil Diffuser, and Night Light.</li>
+                <li><strong>Eco-friendly design:</strong> Beautiful wooden base and transparent water tank.</li>
+            </ul>
+
+            <h3>Why you will love it:</h3>
+            <p>Imagine coming home after a hard day, turning on your favorite warm LED color, and listening to the calming ASMR rain sounds. Add two drops of lavender oil, and it will instantly relieve your anxiety, help you focus on studying, and guarantee a deep, peaceful sleep. It’s the ultimate aesthetic upgrade for your desk!</p>
+
+            <div class="cta-highlight">
+                Don't miss out! This is a limited edition model! Click "PLACE BID" now to join the auction, or hit "BUY IT NOW" for just $40 to get it immediately with free shipping. Upgrade your vibe today!
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function changeImage(newSource, clickedThumbnail) {
+        document.getElementById('mainImage').src = newSource;
+        let thumbnails = document.getElementsByClassName('thumb');
+        for (let i = 0; i < thumbnails.length; i++) {
+            thumbnails[i].classList.remove('active');
+        }
+        clickedThumbnail.classList.add('active');
+    }
+</script>
+
+</body>
+</html>
